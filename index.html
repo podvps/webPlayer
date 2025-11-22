@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>本地视频播放器</title>
+    <style>
+      /* Plyr播放器样式优化 */
+      :root {
+        --plyr-color-primary: #3b82f6;
+        --button-bg-color: #3b82f6; /* 按钮背景色 - 明亮的蓝色 */
+      }
+      
+      .dark .plyr__control,
+      .dark .plyr__menu__container .plyr__control {
+        color: #fff !important;
+      }
+      
+      .dark .plyr__tooltip {
+        color: #fff !important;
+      }
+      
+      /* 确保进度条颜色正确 */
+      .plyr__progress--played, 
+      .plyr__volume--display {
+        background: #3b82f6 !important;
+      }
+      
+      /* 确保控制栏完全可见 */
+      .plyr__controls {
+        min-height: 80px !important;
+        padding-bottom: 15px !important;
+        padding-right: 10px !important;
+        padding-top: 15px !important;
+        display: flex !important;
+        align-items: center !important;
+        position: relative !important;
+        z-index: 10 !important;
+        transform: translateY(0) !important;
+        bottom: 0 !important;
+        flex-wrap: nowrap !important;
+      }
+      
+      /* 修复全屏时的控制栏显示 */
+      .plyr--fullscreen .plyr__controls {
+        padding-bottom: 30px !important;
+        min-height: 100px !important;
+        z-index: 100 !important;
+      }
+      
+      /* 确保全屏时视频容器不被任何元素遮挡 */
+      .plyr--fullscreen {
+        z-index: 9999 !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: black !important;
+      }
+      
+      /* 增强设置菜单中的选项样式 */
+      .plyr__menu__container [data-plyr="auto-next"] {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 8px 16px;
+        transition: all 0.2s ease;
+      }
+      
+      .plyr__menu__container [data-plyr="auto-next"]:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+      }
+      
+      /* 确保所有控制按钮正确显示 */
+      .plyr__control {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+       
+       /* 优化视频容器布局 */
+      .plyr__video-wrapper {
+        margin-bottom: 0 !important;
+        flex: 1 !important;
+        position: relative !important;
+        overflow: hidden !important;
+        min-height: 0 !important;
+      }
+      
+      /* 确保视频元素不会超出容器 */
+      .plyr video {
+        height: 100% !important;
+        width: 100% !important;
+        object-fit: contain !important;
+      }
+      
+      /* 优化播放器容器 */
+      .plyr {
+        margin-bottom: 0 !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      
+      /* 控制栏按钮间距 */
+      .plyr__control--fullscreen {
+        margin-left: 8px !important;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,135 @@
+@tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+
+  :root {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    line-height: 1.5;
+    font-weight: 400;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 自定义滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  /* 暗色模式的滚动条样式 */
+  .dark ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* 确保视频播放器控件不会被截断 */
+  .plyr-container {
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* 确保视频容器能够完全填充父容器 */
+  .video-container-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+  }
+
+  /* 确保控件栏有足够空间显示所有按钮 */
+  .plyr__controls {
+    flex-wrap: nowrap !important;
+    overflow-x: visible !important;
+  }
+  
+    /* 自动连播按钮样式 - 完全适配Plyr原生按钮风格 */
+    .plyr__control--auto-next {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 0 !important; /* 方形按钮 */
+      transition: all 0.2s ease !important;
+      position: relative !important;
+      margin-right: 0 !important; /* 与其他按钮保持一致的间距 */
+      padding: 0 !important;
+      min-width: 40px !important;
+      background-color: transparent !important; /* 确保默认状态背景透明 */
+      color: white !important; /* 确保图标颜色为白色 */
+    }
+    
+    /* 鼠标悬浮效果 - 显示方形蓝色底色 */
+    .plyr__control--auto-next:hover {
+      background-color: #3b82f6 !important; /* 明亮的蓝色方形底色 */
+      color: white !important;
+    }
+    
+    /* 开启连播后的激活状态 - 保持方形蓝色底色 */
+    .plyr__control--auto-next.plyr__control--active {
+      background-color: #3b82f6 !important; /* 保持明亮的蓝色方形底色 */
+      color: white !important;
+    }
+    
+    /* 确保图标居中显示 */
+    .plyr__control--auto-next i {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 16px !important;
+      height: 16px !important;
+      font-size: 16px !important;
+    }
+    
+    /* 确保工具提示正常显示 - 复用Plyr原生工具提示样式 */
+    .plyr__control--auto-next .plyr__tooltip {
+      opacity: 0 !important;
+      pointer-events: none !important;
+      position: absolute !important;
+      bottom: 100% !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      margin-bottom: 8px !important;
+      padding: 4px 8px !important;
+      border-radius: 4px !important;
+      font-size: 12px !important;
+      white-space: nowrap !important;
+      background-color: rgba(0, 0, 0, 0.8) !important;
+      color: white !important;
+      transition: opacity 0.2s ease !important;
+      z-index: 1000 !important;
+    }
+    
+    /* 工具提示显示效果 */
+    .plyr__control--auto-next:hover .plyr__tooltip {
+      opacity: 1 !important;
+    }

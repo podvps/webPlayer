@@ -1,0 +1,385 @@
+/* Plyr.io 官方样式 - 使用官方demo */
+.plyr {
+  position: relative;
+  max-width: 100%;
+  min-width: 200px;
+  font-family: Avenir, Avenir Next, Arial, Helvetica, sans-serif;
+  font-size: 16px;
+}
+
+.plyr__video-wrapper {
+  position: relative;
+  background: #000;
+  border-radius: inherit;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.plyr__controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75));
+  z-index: 2;
+  transition: opacity 0.3s ease;
+}
+
+.plyr__progress {
+  position: relative;
+  display: flex;
+  flex-grow: 1;
+  margin: 0 10px;
+}
+
+.plyr__progress input[type="range"] {
+  position: relative;
+  z-index: 2;
+  cursor: pointer;
+  background: transparent;
+  outline: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 5px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.plyr__progress input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0;
+  height: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
+.plyr__progress input[type="range"]::-moz-range-thumb {
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: 0;
+  height: 0;
+  background: transparent;
+}
+
+.plyr__progress__buffer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  z-index: 1;
+  transition: width 0.2s ease;
+}
+
+.plyr__progress__played {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 5px;
+  background: #fff;
+  border-radius: 10px;
+  z-index: 1;
+  transition: width 0.1s linear;
+}
+
+.plyr__progress__marker {
+  position: absolute;
+  top: 50%;
+  left: var(--value, 0);
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 3;
+}
+
+.plyr__progress:hover .plyr__progress__marker {
+  opacity: 1;
+}
+
+.plyr__time {
+  display: flex;
+  align-items: center;
+  color: #fff;
+  font-size: 14px;
+}
+
+.plyr__time + .plyr__time {
+  margin-left: 5px;
+}
+
+.plyr__time--current {
+  margin-right: 5px;
+}
+
+.plyr__time--divider {
+  margin: 0 5px;
+}
+
+.plyr__volume {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+}
+
+.plyr__volume input[type="range"] {
+  width: 80px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0 10px;
+}
+
+.plyr__volume input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.plyr__volume input[type="range"]::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+.plyr__control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: none;
+  border: 0;
+  padding: 7px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  fill: currentColor;
+}
+
+.plyr__control svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.plyr__control:focus {
+  outline: 1px dotted rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.plyr__control:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.plyr__control.plyr__control--pressed {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.plyr__control--pressed {
+  color: #00b3ff;
+}
+
+/* 工具提示 */
+.plyr__tooltip {
+  background: #fff;
+  border-radius: 5px;
+  bottom: 100%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  color: #4a5464;
+  font-size: 12px;
+  font-weight: 500;
+  left: 50%;
+  line-height: 1.3;
+  margin-bottom: 10px;
+  opacity: 0;
+  padding: 5px 7.5px;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, 10px) scale(0.8);
+  transform-origin: 50% 100%;
+  transition: transform 0.2s ease 0.1s, opacity 0.2s ease 0.1s;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.plyr__tooltip:before {
+  border: 4px solid transparent;
+  border-top-color: #fff;
+  bottom: -4px;
+  content: "";
+  height: 0;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 0;
+  z-index: 2;
+}
+
+.plyr__control:hover .plyr__tooltip {
+  opacity: 1;
+  transform: translate(-50%) scale(1);
+  z-index: 3;
+}
+
+.plyr__menu__container {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 10px;
+  background: rgba(28, 28, 28, 0.95);
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  z-index: 3;
+  color: #fff;
+  transform: translateY(10px);
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+.plyr__control[aria-expanded="true"] + .plyr__menu__container,
+.plyr__control--pressed + .plyr__menu__container,
+.plyr__menu__container.active {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.plyr__menu__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 5px;
+}
+
+.plyr__menu__value {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+
+.plyr__menu__value [role="option"] {
+  display: flex;
+  align-items: center;
+  padding: 7px 10px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.plyr__menu__value [role="option"]:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.plyr__menu__value [role="option"][aria-selected="true"],
+.plyr__menu__value [role="option"].plyr__control--pressed {
+  color: #00b3ff;
+}
+
+/* 工具提示 */
+.plyr__tooltip {
+  background: #fff;
+  border-radius: 5px;
+  bottom: 100%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  color: #4a5464;
+  font-size: 12px;
+  font-weight: 500;
+  left: 50%;
+  line-height: 1.3;
+  margin-bottom: 10px;
+  opacity: 0;
+  padding: 5px 7.5px;
+  pointer-events: none;
+  position: absolute;
+  transform: translate(-50%, 10px) scale(0.8);
+  transform-origin: 50% 100%;
+  transition: transform 0.2s ease 0.1s, opacity 0.2s ease 0.1s;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.plyr__tooltip:before {
+  border: 4px solid transparent;
+  border-top-color: #fff;
+  bottom: -4px;
+  content: "";
+  height: 0;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 0;
+  z-index: 2;
+}
+
+.plyr__control:hover .plyr__tooltip {
+  opacity: 1;
+  transform: translate(-50%) scale(1);
+  z-index: 3;
+}
+
+/* 响应式设计 */
+@media (max-width: 767px) {
+  .plyr__control {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .plyr__control svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .plyr__controls {
+    padding: 8px;
+  }
+  
+  .plyr__progress {
+    margin: 0 5px;
+  }
+  
+  .plyr__volume input[type="range"] {
+    width: 60px;
+  }
+}
+
+/* 控制栏隐藏时的效果 */
+.plyr--fullscreen-active .plyr__controls {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5));
+}
+
+.plyr__video-wrapper.plyr__video-wrapper--hidden-controls .plyr__controls {
+  opacity: 0;
+  pointer-events: none;
+}
