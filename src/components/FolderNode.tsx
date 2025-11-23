@@ -2,16 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-interface FileNode {
-  id: string;
-  name: string;
-  type: 'file' | 'folder';
-  parentId: string | null;
-  path: string;
-  size?: number;
-  lastModified?: number;
-  children?: FileNode[];
-}
+import { FileNode } from '@/types/FileNode';
 
 interface FolderNodeProps {
   node: FileNode;

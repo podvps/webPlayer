@@ -1,19 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
-interface FileTreeNode {
-  id: string;
-  name: string;
-  type: 'file' | 'folder';
-  parentId: string | null;
-  path: string;
-  size?: number;
-  lastModified?: number;
-  children?: FileTreeNode[];
-}
+import { FileNode } from '@/types/FileNode';
 
 interface FileNodeProps {
-  node: FileTreeNode;
+  node: FileNode;
   onClick: () => void;
   isSelected: boolean;
   isDark: boolean;
@@ -130,7 +121,7 @@ const ScrollingText = ({ text, isSelected }: { text: string; isSelected: boolean
   );
 };
 
-export const FileNode: React.FC<FileNodeProps> = ({ 
+export const FileNodeComponent: React.FC<FileNodeProps> = ({ 
   node, 
   onClick,
   isSelected,

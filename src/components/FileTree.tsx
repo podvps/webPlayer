@@ -1,16 +1,15 @@
- import { useState, useCallback } from 'react';
-  import { motion, AnimatePresence } from 'framer-motion';
-  import { FolderNode } from './FolderNode';
-  import { FileNode as FileNodeComponent } from './FileNode';
-  import { useTheme } from '@/hooks/useTheme';
-  import { fileTreeData, FileNode as MediaFileNode } from '@/media/fileData';
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FolderNode } from './FolderNode';
+import { FileNodeComponent } from './FileNode';
+import { useTheme } from '@/hooks/useTheme';
+import { fileTreeData } from '@/media/fileData';
+import { FileNode } from '@/types/FileNode';
 
-  interface FileNode extends MediaFileNode {}
-
-  interface FileTreeProps {
-    onFileSelect: (file: File) => void;
-    selectedFile: File | null;
-  }
+interface FileTreeProps {
+  onFileSelect: (file: FileNode) => void;
+  selectedFile: FileNode | null;
+}
 
   // 从media文件夹导出文件系统数据
   export const mockFileTree = fileTreeData;
@@ -53,17 +52,8 @@ export const FileTree: React.FC<FileTreeProps> = ({ onFileSelect, selectedFile }
 
    // 处理文件选择
    const handleFileClick = useCallback((node: FileNode) => {
-     // 创建文件对象
-     const file = new File([''], node.name, { 
-       type: 'video/mp4',
-       lastModified: node.lastModified || Date.now()
-     });
-     
-     // 将文件路径和大小等信息存储在文件对象上
-     Object.defineProperty(file, 'path', { value: node.path });
-     Object.defineProperty(file, 'size', { value: node.size });
-     
-     onFileSelect(file);
+     // 直接传递 FileNode 对象，而不是创建 File 对象
+     onFileSelect(node);
    }, [onFileSelect]);
 
    // 递归渲染文件树
@@ -129,7 +119,18 @@ export const FileTree: React.FC<FileTreeProps> = ({ onFileSelect, selectedFile }
             fileInput.onchange = (e) => {
               const target = e.target as HTMLInputElement;
               if (target.files && target.files.length > 0) {
-                onFileSelect(target.files[0]);
+                const file = target.files[0];
+                // 创建一个临时的 FileNode 对象
+                const fileNode: FileNode = {
+                  id: `temp-${Date.now()}`, // 使用时间戳创建临时ID
+                  name: file.name,
+                  type: 'file',
+                  parentId: null,
+                  path: URL.createObjectURL(file), // 使用 blob URL 作为路径
+                  size: file.size,
+                  lastModified: file.lastModified
+                };
+                onFileSelect(fileNode);
               }
             };
             fileInput.click();
@@ -142,7 +143,7 @@ export const FileTree: React.FC<FileTreeProps> = ({ onFileSelect, selectedFile }
       </div>
       
         <div className="font-medium mb-2">文件目录</div>
-        <div className="flex-grow overflow-y-auto pr-1 min-h-[100px] max-h-[calc(100vh-220px)]">
+        <div className="flex-grow overflow-y-auto pr-1 min-h-[100px] max-h-[calc(100vh-320px)]">
           {renderTree(mockFileTree)}
         </div>
     </div>
