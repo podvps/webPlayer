@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { useTheme } from '@/hooks/useTheme';
 import { FileTree } from '@/components/FileTree';
 import { FileNode } from '@/types/FileNode';
+import { URLHelper } from '@/utils/urlHelper';
 import Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
 
@@ -71,11 +72,10 @@ function VideoPlayer() {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
   const [isAutoPlayEnabled, setIsAutoPlayEnabled] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [sidebarWidth, setSidebarWidth] = useState<number>(300);
+  const [sidebarWidth, setSidebarWidth] = useState<number>(500);
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [isFilePanelCollapsed, setIsFilePanelCollapsed] = useState(false);
   const [isVerticalLayout, setIsVerticalLayout] = useState<boolean>(false);
-  const [shouldAutoPlay, setShouldAutoPlay] = useState<boolean>(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
@@ -98,7 +98,6 @@ function VideoPlayer() {
       });
       
       if (isSupportedFormat) {
-        //console.log('找到支持的文件:', node.name);
         files.push(node);
       } else if (node.type === 'folder' && node.children) {
         files = [...files, ...getAllVideoFiles(node.children)];
@@ -110,16 +109,10 @@ function VideoPlayer() {
 
   // 处理带自动播放标志的文件选择
   const handleFileSelectWithAutoPlay = useCallback((file: FileNode, shouldAuto: boolean = false) => {
-    console.log('📁 选择文件:', file.name, '路径:', file.path, '自动播放:', shouldAuto);
-    console.log('🔍 支持的格式:', supportedVideoFormats);
-    console.log('🔍 文件类型:', file.type);
-    console.log('🔍 文件名是否以支持的格式结尾:', supportedVideoFormats.some(format => file.name.endsWith(format)));
-
     // 更可靠的文件扩展名检查
     const isSupportedFormat = file.type === 'file' && supportedVideoFormats.some(format => {
       const fileName = file.name.toLowerCase();
       const extension = format.toLowerCase();
-      console.log(`检查 ${fileName} 是否以 ${extension} 结尾: ${fileName.endsWith(extension)}`);
       return fileName.endsWith(extension);
     });
     
@@ -144,54 +137,47 @@ function VideoPlayer() {
       } else if (file.path.startsWith('http')) {
         url = file.path;
       } else {
-        // 确保路径以/开头，修正可能的路径问题
-        url = file.path.startsWith('/') ? file.path : `/${file.path}`;
-        console.log('🔧 修正后的视频URL:', url);
+        // 使用URLHelper正确处理中文路径
+        url = URLHelper.getMediaURL(file.path);
       }
       
-      console.log('🎬 设置视频URL:', url);
       setVideoUrl(url);
       
       // 立即设置属性到video元素，确保在Plyr ready之前设置完成
       if (videoRef.current) {
         videoRef.current.setAttribute('data-autoplay', shouldAuto.toString());
         videoRef.current.setAttribute('data-current-file-id', file.id);
-        console.log('🎬 立即设置video元素属性:', {
-          autoplay: shouldAuto,
-          fileId: file.id
-        });
       }
       
       // 也设置到Plyr media元素（如果已经初始化）
       if (plyrRef.current && plyrRef.current.media) {
         plyrRef.current.media.setAttribute('data-autoplay', shouldAuto.toString());
         plyrRef.current.media.setAttribute('data-current-file-id', file.id);
-        console.log('🎬 设置Plyr media元素属性:', {
-          autoplay: shouldAuto,
-          fileId: file.id
-        });
       }
       
       // 添加一个检查，看看文件是否存在
       fetch(url, { method: 'HEAD' })
         .then(response => {
           if (!response.ok) {
-            console.error('⚠️ 视频文件无法访问:', response.status, response.statusText);
+            console.error('视频文件无法访问:', response.status, response.statusText);
             toast.error(`视频文件无法访问: ${response.status} ${response.statusText}`, {
               duration: 5000
             });
-          } else {
-            console.log('✅ 视频文件可访问');
           }
         })
         .catch(error => {
-          console.error('⚠️ 检查视频文件时出错:', error);
+          console.error('检查视频文件时出错:', error);
           toast.error(`检查视频文件时出错: ${error.message}`, {
             duration: 5000
           });
         });
       
-      toast.success(`已选择视频: ${file.name}`);
+      if (shouldAuto) {
+        console.log('🔄 自动连播:', file.name);
+      } else {
+        console.log('👆 手动选择视频:', file.name);
+        toast.success(`已选择视频: ${file.name}`);
+      }
     } else {
       const formatsList = supportedVideoFormats.join(', ');
       toast.error(`请选择支持的视频文件格式: ${formatsList}`);
@@ -200,29 +186,25 @@ function VideoPlayer() {
 
   // 处理文件选择
   const handleFileSelect = useCallback((file: FileNode) => {
+    // 手动选择文件时，使用当前的连播状态
     handleFileSelectWithAutoPlay(file, isAutoPlayEnabled);
   }, [handleFileSelectWithAutoPlay, isAutoPlayEnabled]);
 
   // 获取下一个视频
   const getNextVideo = useCallback((currentFile: FileNode | null): FileNode | null => {
     if (!currentFile) {
-      console.log('🎬 没有当前文件，无法获取下一个视频');
       return null;
     }
 
     const allVideos = getAllVideoFiles(fileTreeData as FileNode[]);
-    console.log('🎬 所有视频文件:', allVideos.map(v => v.name));
     
     const currentIndex = allVideos.findIndex(video => video.id === currentFile.id);
-    console.log('🎬 当前视频索引:', currentIndex, '总视频数:', allVideos.length);
 
     if (currentIndex === -1 || currentIndex === allVideos.length - 1) {
-      console.log('🎬 没有下一个视频');
       return null;
     }
 
     const nextVideo = allVideos[currentIndex + 1];
-    console.log('🎬 下一个视频:', nextVideo.name);
     return nextVideo;
   }, [getAllVideoFiles]);
 
@@ -274,7 +256,7 @@ function VideoPlayer() {
       };
       
       setSelectedFile(fileNode);
-      setVideoUrl(url);
+      setVideoUrl(URLHelper.getMediaURL(url));
       setCurrentVideoName(videoFile.name);
       toast.success(`已加载视频: ${videoFile.name}`);
     } else {
@@ -325,7 +307,7 @@ function VideoPlayer() {
     // 等待DOM和Plyr加载完成
     const checkAndInitPlyr = () => {
       if (videoRef.current && !plyrRef.current && Plyr) {
-        console.log('🎬 初始化Plyr播放器');
+
         
         // 配置Plyr选项
         const options = {
@@ -414,7 +396,6 @@ function VideoPlayer() {
           plyrRef.current.on('ready', () => {
             // 避免重复处理ready事件
             if (isPlyrReady.current) {
-              console.log('🎬 Plyr已经ready过，跳过重复处理');
               return;
             }
             isPlyrReady.current = true;
@@ -426,30 +407,22 @@ function VideoPlayer() {
             const plyrAutoplayState = plyrRef.current?.media?.getAttribute('data-autoplay') === 'true';
             const autoplayState = videoAutoplayState || plyrAutoplayState;
             
-            console.log('🎬 Plyr ready时检查连播状态:', {
-              videoElement: videoAutoplayState,
-              plyrMedia: plyrAutoplayState,
-              final: autoplayState
-            });
-            console.log('🎬 Plyr ready时检查shouldAutoPlay:', shouldAutoPlay);
+            // 确保Plyr media元素有正确的自动播放属性
+            if (videoAutoplayState && !plyrAutoplayState) {
+              plyrRef.current.media.setAttribute('data-autoplay', 'true');
+              console.log('🔄 同步自动播放状态到Plyr media元素');
+            }
             
             // 如果需要自动播放，立即播放
             if (autoplayState) {
               setTimeout(async () => {
                 try {
-                  console.log('🎬 尝试自动播放...');
                   await plyrRef.current.play();
-                  console.log('🎬 Plyr ready时自动播放成功');
-                  setShouldAutoPlay(false);
                 } catch (error) {
-                  console.warn('🎬 Plyr ready时自动播放失败:', error);
                   // 如果失败，尝试静音播放
                   try {
-                    console.log('🎬 尝试静音自动播放...');
                     plyrRef.current.muted = true;
                     await plyrRef.current.play();
-                    console.log('🎬 Plyr ready时静音自动播放成功');
-                    setShouldAutoPlay(false);
                     // 1秒后恢复音量
                     setTimeout(() => {
                       if (plyrRef.current) {
@@ -457,8 +430,7 @@ function VideoPlayer() {
                       }
                     }, 1000);
                   } catch (mutedError) {
-                    console.error('🎬 静音自动播放也失败:', mutedError);
-                    setShouldAutoPlay(false);
+                    console.error('自动播放失败:', mutedError);
                   }
                 }
               }, 300); // 增加延迟确保完全准备就绪
@@ -466,33 +438,40 @@ function VideoPlayer() {
           });
 
           plyrRef.current.on('ended', () => {
-            console.log('🎬 Plyr视频播放结束事件触发');
             // 使用 ref 获取最新的状态值，避免闭包问题
             const currentAutoPlayState = plyrRef.current?.media?.getAttribute('data-autoplay') === 'true';
             const currentFileId = plyrRef.current?.media?.getAttribute('data-current-file-id');
+            
+            console.log('🎬 视频播放结束:', {
+              currentAutoPlayState,
+              currentFileId,
+              mediaElement: plyrRef.current?.media
+            });
             
             // 从文件树中查找当前文件
             const currentSelectedFile = currentFileId ? 
               getAllVideoFiles(fileTreeData as FileNode[]).find(v => v.id === currentFileId) : null;
             
-            console.log('🎬 连播状态:', currentAutoPlayState);
-            console.log('🎬 当前文件:', currentSelectedFile?.name);
+            console.log('🔍 查找当前文件结果:', {
+              currentFileId,
+              currentSelectedFile: currentSelectedFile?.name,
+              allVideosCount: getAllVideoFiles(fileTreeData as FileNode[]).length
+            });
             
             if (currentAutoPlayState && currentSelectedFile) {
               const nextVideo = getNextVideo(currentSelectedFile);
+              console.log('➡️ 下一个视频:', nextVideo?.name);
+              
               if (nextVideo) {
-                console.log('🎬 播放下一个视频:', nextVideo.name);
                 toast.success(`自动播放下一个视频: ${nextVideo.name}`);
-                
-                // 设置自动播放标志
-                console.log('🎬 设置shouldAutoPlay为true');
-                setShouldAutoPlay(true);
                 
                 // 直接调用文件选择，并传递自动播放标志
                 handleFileSelectWithAutoPlay(nextVideo, true);
               } else {
                 toast.info('已播放完所有视频');
               }
+            } else {
+              console.log('⏸️ 连播功能未启用或未找到当前文件');
             }
           });
 
@@ -535,25 +514,32 @@ function VideoPlayer() {
   
   // 当连播状态改变时，更新Plyr media元素的属性
   useEffect(() => {
-    // 只更新Plyr media元素
+    // 更新Plyr media元素和video元素
     if (plyrRef.current && plyrRef.current.media) {
       plyrRef.current.media.setAttribute('data-autoplay', isAutoPlayEnabled.toString());
-      console.log('🎬 更新Plyr media元素连播状态属性:', isAutoPlayEnabled);
+      console.log('🔄 连播状态更新:', {
+        isAutoPlayEnabled,
+        mediaElement: plyrRef.current.media,
+        mediaAttribute: plyrRef.current.media.getAttribute('data-autoplay')
+      });
+    }
+    
+    if (videoRef.current) {
+      videoRef.current.setAttribute('data-autoplay', isAutoPlayEnabled.toString());
     }
   }, [isAutoPlayEnabled]);
 
   // 当视频源改变时，更新Plyr
   useEffect(() => {
     if (plyrRef.current && videoRef.current && videoUrl) {
-      console.log('🎬 设置视频源:', videoUrl);
-
       try {
         // 检查当前是否已经在播放相同的视频
         const currentSrc = videoRef.current.src;
-        const newSrc = new URL(videoUrl, window.location.origin).href;
+        const newSrc = videoUrl.startsWith('/') ? 
+          new URL(videoUrl, window.location.origin).href : 
+          videoUrl;
         
         if (currentSrc === newSrc) {
-          console.log('🎬 视频源未改变，跳过重新设置');
           return;
         }
         
@@ -564,8 +550,6 @@ function VideoPlayer() {
         const needsAutoPlay = plyrRef.current.media?.getAttribute('data-autoplay') === 'true';
         
         if (needsAutoPlay) {
-          console.log('🎬 需要自动播放，使用Plyr source重新初始化');
-          
           // 使用Plyr source设置，这会触发ready事件
           const sourceConfig = {
             type: 'video',
@@ -577,23 +561,32 @@ function VideoPlayer() {
           
           plyrRef.current.source = sourceConfig;
         } else {
-          console.log('🎬 不需要自动播放，直接设置video src');
           // 直接设置video元素的src，避免Plyr重新初始化
           videoRef.current.src = videoUrl;
         }
         
-        // 同步当前文件ID到Plyr media元素
+        // 同步当前文件ID和自动播放状态到Plyr media元素
         if (selectedFile) {
           plyrRef.current.media.setAttribute('data-current-file-id', selectedFile.id);
-          console.log('🎬 视频源改变时同步文件ID:', selectedFile.id);
+          
+          // 确保自动播放状态正确同步
+          const videoAutoplayState = videoRef.current?.getAttribute('data-autoplay') === 'true';
+          if (videoAutoplayState) {
+            plyrRef.current.media.setAttribute('data-autoplay', 'true');
+          }
+          
+          console.log('🔄 视频源更新，同步属性:', {
+            fileId: selectedFile.id,
+            fileName: selectedFile.name,
+            autoplayState: videoAutoplayState,
+            mediaAutoplay: plyrRef.current.media.getAttribute('data-autoplay')
+          });
         }
-        
-        console.log('✅ 视频源设置完成');
       } catch (error) {
-        console.error('❌ 设置视频源时出错:', error);
+        console.error('设置视频源时出错:', error);
       }
     }
-  }, [videoUrl, shouldAutoPlay, selectedFile]);
+  }, [videoUrl, selectedFile]);
 
   // 初始化第一个视频
   useEffect(() => {
@@ -603,17 +596,16 @@ function VideoPlayer() {
         const allVideos = getAllVideoFiles(fileTreeData as FileNode[]);
         
         if (allVideos.length > 0) {
-          console.log('🎬 自动加载第一个视频:', allVideos[0].name);
           handleFileSelect(allVideos[0]);
         }
       } else if (!plyrRef.current) {
         // 如果Plyr还没初始化，稍后再试
-        setTimeout(initializeFirstVideo, 500);
+        setTimeout(initializeFirstVideo, 200);
       }
     };
 
     // 给Plyr一些时间初始化
-    setTimeout(initializeFirstVideo, 1500);
+    setTimeout(initializeFirstVideo, 300);
   }, [getAllVideoFiles, handleFileSelect, videoUrl]);
 
   // 监听窗口大小变化，切换布局模式
@@ -685,7 +677,6 @@ function VideoPlayer() {
                     // 同步到Plyr media元素
                     if (plyrRef.current && plyrRef.current.media) {
                       plyrRef.current.media.setAttribute('data-autoplay', newState.toString());
-                      console.log('🎬 更新连播状态属性:', newState);
                     }
                   }}
                   className={`px-3 py-1 rounded-full text-sm transition-colors ${
@@ -730,9 +721,7 @@ function VideoPlayer() {
                   preload="metadata"
                   className="w-full h-full"
                   crossOrigin="anonymous"
-                  onLoadStart={() => console.log('🎥 Video loadstart 事件')}
-                  onLoadedData={() => console.log('🎥 Video loadeddata 事件')}
-                  onCanPlay={() => console.log('🎥 Video canplay 事件')}
+
 
                   onError={(e) => {
                     console.error('❌ Video error 事件:', e);
@@ -749,7 +738,7 @@ function VideoPlayer() {
                       duration: 3000
                     });
                   }}
-                  onLoad={() => console.log('🎥 Video load 事件')}
+
                 >
                 </video>
               </div>
